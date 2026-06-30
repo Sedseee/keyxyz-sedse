@@ -5,115 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEDSE Key System</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
         :root {
-            --bg-color: #121212;
-            --panel-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-muted: #888888;
-            --border-color: #333333;
-            --btn-bg: #2a2a2a;
-            --btn-hover: #3a3a3a;
-            --font-mono: 'Consolas', 'Courier New', Courier, monospace;
+            --bg-base: #030712;
+            --bg-surface: rgba(11, 15, 25, 0.85); /* Glass panel */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: #5aabf2; /* Your Sky Blue Accent */
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            
+            --btn-lv: #ea580c;
+            --btn-wi: #8b5cf6;
+            --btn-ll: #3b82f6;
+            
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
         }
-        body { 
-            font-family: var(--font-mono); 
-            background-color: var(--bg-color);
-            color: var(--text-main); 
-            padding: 20px; 
-            margin: 0;
-            display: flex;
-            justify-content: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 450px; 
-            margin-top: 20px;
-            background: var(--panel-bg);
-            padding: 30px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        h2 { 
-            margin-top: 0; 
-            font-weight: normal; 
-            font-size: 20px;
-            border-bottom: 1px solid var(--border-color); 
-            padding-bottom: 15px; 
-            text-align: center;
-        }
-        p { 
-            font-size: 14px; 
-            color: var(--text-muted); 
-            margin-bottom: 15px; 
-            text-align: center;
-        }
-        .btn {
-            display: block; 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0;
-            background: var(--btn-bg); 
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            /* Dark transparent overlay over your uploaded anime beach sky background */
+            background-image: 
+                linear-gradient(rgba(3, 7, 18, 0.85), rgba(3, 7, 18, 0.85)), 
+                url('/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-main);
-            border: 1px solid var(--border-color); 
-            border-radius: 4px;
-            font-family: inherit; 
-            font-size: 14px; 
-            cursor: pointer; 
-            text-decoration: none; 
+            margin: 0; padding: 20px;
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
             box-sizing: border-box;
-            text-align: center;
-            transition: background 0.2s;
         }
-        .btn:hover { 
-            background: var(--btn-hover); 
+
+        .container {
+            width: 100%; max-width: 440px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
         }
-        .divider { 
-            margin: 30px 0; 
-            border-bottom: 1px solid var(--border-color); 
+
+        h2 {
+            margin: 0 0 6px 0; font-size: 20px; font-weight: 600;
+            color: var(--text-main); letter-spacing: -0.5px; text-align: center;
         }
-        input, textarea {
-            width: 100%; 
-            padding: 12px; 
-            margin-top: 10px;
-            background: var(--bg-color); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-main);
-            border-radius: 4px;
+        
+        p { font-size: 14px; color: var(--text-muted); margin: 0 0 24px 0; text-align: center; line-height: 1.5; }
+
+        .divider {
+            height: 1px; background: var(--border-color);
+            margin: 28px 0;
+        }
+
+        .btn {
+            display: block; width: 100%; padding: 12px; margin-bottom: 12px;
+            border-radius: 6px; font-family: inherit; font-size: 14px; 
+            font-weight: 600; cursor: pointer; text-decoration: none; text-align: center;
+            border: 1px solid transparent; color: #ffffff;
             box-sizing: border-box; 
-            font-family: inherit;
+            transition: opacity 0.2s, transform 0.1s;
         }
-        textarea {
-            height: 100px; 
-            resize: none; 
-            font-size: 13px;
+        .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-lv { background-color: var(--btn-lv); }
+        .btn-wi { background-color: var(--btn-wi); }
+        .btn-ll { background-color: var(--btn-ll); }
+        .btn-brand { background-color: var(--border-focus); margin-top: 12px; color: #000; }
+
+        input, textarea {
+            width: 100%; padding: 12px;
+            background: rgba(0, 0, 0, 0.3); 
+            border: 1px solid var(--border-color);
+            color: var(--text-main); border-radius: 6px;
+            font-family: var(--font-mono); font-size: 13px; outline: none;
+            box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s;
         }
+        input:focus, textarea:focus { 
+            border-color: var(--border-focus); 
+            box-shadow: 0 0 0 2px rgba(90, 171, 242, 0.2);
+        }
+        
+        textarea { height: 95px; resize: none; margin-top: 16px; color: #10b981; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>SEDSE Key System</h2>
-        <p>Select a provider to generate your key</p>
+        <p>Complete any option below to generate your script key.</p>
         
-        <a href="https://link-hub.net/6931596/TGdANQjZ05vc" class="btn" target="_blank">Linkvertise</a>
-        <a href="https://work.ink/2BN1/sedse-jjs-script-key" class="btn" target="_blank">Work.ink</a>
-        <a href="https://loot-link.com/s?iAE1MNAB" class="btn" target="_blank">LootLabs</a>
+        <a href="https://link-hub.net/6931596/TGdANQjZ05vc" class="btn btn-lv" target="_blank">Linkvertise</a>
+        <a href="https://work.ink/2BN1/sedse-jjs-script-key" class="btn btn-wi" target="_blank">Work.ink</a>
+        <a href="https://loot-link.com/s?iAE1MNAB" class="btn btn-ll" target="_blank">LootLabs</a>
         
         <div class="divider"></div>
         
-        <h2>Loader Generator</h2>
-        <p>Enter your key to generate the loader</p>
+        <h2>Loader Compiler</h2>
+        <p>Enter your key below to build your loader code.</p>
         
-        <input type="text" id="keyInput" placeholder="Enter key (e.g., SEDSE-XXXX)">
-        <button class="btn" onclick="generateLoader()">Generate Code</button>
+        <input type="text" id="keyInput" placeholder="SEDSE-XXXX">
+        <button class="btn btn-brand" onclick="generateLoader()">Generate Loader</button>
         
-        <textarea id="output" readonly placeholder="Your loadstring will appear here..."></textarea>
+        <textarea id="output" readonly placeholder="-- Your loadstring will be generated here"></textarea>
     </div>
 
     <script>
         function generateLoader() {
             const key = document.getElementById('keyInput').value.trim();
-            if(!key) { alert("Please enter a key."); return; }
+            if(!key) return; 
             const domain = window.location.origin;
             const loaderCode = `local key = "${key}"\n(loadstring or load)(game:HttpGet("${domain}/v1/load?key=" .. game:GetService("HttpService"):UrlEncode(key) .. "&_cb=" .. tostring(os.clock()), true))()`;
             document.getElementById('output').value = loaderCode;
