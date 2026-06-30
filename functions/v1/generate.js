@@ -1,58 +1,56 @@
-function getSubnet(ip) {
-  if (ip.includes('.')) {
-    return ip.split('.').slice(0, 3).join('.');
-  } else if (ip.includes(':')) {
-    return ip.split(':').slice(0, 4).join(':');
-  }
-  return ip;
-}
-
 export async function onRequest(context) {
-  const userIP = context.request.headers.get("cf-connecting-ip") || "unknown-ip";
-  const subnet = getSubnet(userIP);
-  const ticket = "SUB-" + subnet;
+  const url = new URL(context.request.url);
   
+  // Linkvertise automatically appends "?hash=..." to your target URL when redirecting
+  const hash = url.searchParams.get("hash");
+
+  if (!hash) {
+    return new Response("Bypass Detected: Missing secure verification hash. You must complete the linkvertise.", { status: 403 });
+  }
+
   const supabaseUrl = context.env.SUPABASE_URL;
   const supabaseKey = context.env.SUPABASE_KEY;
-  const headers = { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` };
+  const linkvertiseToken = context.env.LINKVERTISE_TOKEN;
 
-  // 1. Verify the IP range ticket in Supabase
-  const checkRes = await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${ticket}&is_active=eq.false&select=created_at`, { headers });
-  const checkData = await checkRes.json();
+  // 1. Validate the hash with Linkvertise's official verification API
+  const validationUrl = `https://publisher.linkvertise.com/api/v1/anti_bypassing?token=${linkvertiseToken}&hash=${hash}`;
+  
+  try {
+    const linkvertiseRes = await fetch(validationUrl, { method: 'POST' });
+    const responseText = await linkvertiseRes.text();
 
-  // ERROR TYPE 1: If the IP range is not found in the DB
-  if (!checkData || checkData.length === 0) {
-    return new Response(`Bypass Detected: No session found for your IP range (${subnet}). Make sure you started at /start.`, { status: 403 });
+    // Linkvertise returns "true" if the hash is valid, and "false" or an error if bypassed
+    if (!responseText.toUpperCase().includes("TRUE")) {
+      return new Response("Bypass Detected: Invalid or expired verification hash.", { status: 403 });
+    }
+  } catch (err) {
+    return new Response("Verification Error: Failed to reach the ad validation server.", { status: 500 });
   }
 
-  // 2. Anti-Bypass Tool Time Check (Timezone-Safe)
-  const createdAt = new Date(checkData[checkData.length - 1].created_at).getTime();
-  const timeDiff = (Date.now() - createdAt) / 1000;
-
-  // We check if the time difference is between 0 and 12 seconds.
-  // This prevents bypass bots, while ignoring any "negative time" bugs caused by server clock drift.
-  if (timeDiff > 0 && timeDiff < 12) {
-    return new Response(`Bypass Detected: You completed the link too fast! (${Math.round(timeDiff)} seconds). Real users take longer.`, { status: 403 });
-  }
-
-  // 3. Generate the real key
+  // 2. Hash is verified! Generate the actual key
   const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase();
   const newKey = `SEDSE-${randomPart}`;
 
-  // Save the real key
-  await fetch(`${supabaseUrl}/rest/v1/keys`, {
+  // 3. Save the real key to Supabase
+  const dbResponse = await fetch(`${supabaseUrl}/rest/v1/keys`, {
     method: 'POST',
-    headers: { ...headers, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ key_value: newKey, is_active: true })
+    headers: {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
+      key_value: newKey,
+      is_active: true
+    })
   });
 
-  // 4. Delete the IP range ticket so they can't reuse it
-  await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${ticket}`, {
-    method: 'DELETE',
-    headers: headers
-  });
+  if (!dbResponse.ok) {
+    return new Response("Database Error: Key generated but could not be saved.", { status: 500 });
+  }
 
-  // 5. Return success HTML
+  // 4. Return success page to the user
   const html = `
   <!DOCTYPE html>
   <html lang="en">
