@@ -69,25 +69,30 @@ export async function onRequest(context) {
     // Extract subnet (handles mobile/network shifts and IPv4 vs IPv6 issues)
     const ipParts = userIP.includes('.') ? userIP.split('.').slice(0, 3).join('.') : userIP.split(':').slice(0, 4).join(':');
 
-    // Fetch all pending LootLabs postbacks
-    const checkRes = await fetch(`${supabaseUrl}/rest/v1/keys?key_value=likestarts.LOOT-&is_active=eq.false`, { headers });
+    // Fetch all pending LootLabs postbacks (fixed 'like.LOOT-*' wildcard operator)
+    const checkRes = await fetch(`${supabaseUrl}/rest/v1/keys?key_value=like.LOOT-*&is_active=eq.false`, { headers });
     const checkData = await checkRes.json();
 
-    // Look for a database ticket matching either your exact IP or your Subnet range
-    const matchingTicket = checkData.find(row => {
-      const ticketIP = row.key_value.replace("LOOT-", "");
-      return ticketIP === userIP || ticketIP.startsWith(ipParts);
-    });
-
-    if (matchingTicket) {
-      isVerified = true;
-      // Clear the temporary ticket
-      await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${matchingTicket.key_value}`, {
-        method: 'DELETE',
-        headers: headers
+    // Safety check to ensure we received a list of keys and not a database error
+    if (Array.isArray(checkData)) {
+      // Look for a database ticket matching either your exact IP or your Subnet range
+      const matchingTicket = checkData.find(row => {
+        const ticketIP = row.key_value.replace("LOOT-", "");
+        return ticketIP === userIP || ticketIP.startsWith(ipParts);
       });
+
+      if (matchingTicket) {
+        isVerified = true;
+        // Clear the temporary ticket
+        await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${matchingTicket.key_value}`, {
+          method: 'DELETE',
+          headers: headers
+        });
+      } else {
+        debugMessage = `No LootLabs postback matched. Your current IP: ${userIP}. DB tickets found: ${JSON.stringify(checkData.map(r => r.key_value))}`;
+      }
     } else {
-      debugMessage = `No LootLabs postback matched. Your current IP: ${userIP}. DB tickets found: ${JSON.stringify(checkData.map(r => r.key_value))}`;
+      debugMessage = `Supabase query error. Received: ${JSON.stringify(checkData)}`;
     }
   } else {
     debugMessage = `No provider matched. Raw URL parsed: hash=${hash}, provider=${provider}`;
