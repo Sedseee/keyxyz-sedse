@@ -3,108 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEDSE Dashboard</title>
+    <title>SEDSE System Admin</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
         :root {
-            --bg-color: #121212;
-            --panel-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-muted: #888888;
-            --border-color: #333333;
-            --btn-bg: #2a2a2a;
-            --btn-hover: #3a3a3a;
-            --font-mono: 'Consolas', 'Courier New', Courier, monospace;
+            --bg-base: #030712;
+            --bg-surface: rgba(11, 15, 25, 0.85); /* Glass panel */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: #5aabf2; /* Sky Blue Accent */
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
         }
+
         body {
-            background-color: var(--bg-color);
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            /* Dark transparent overlay over your uploaded anime beach sky background */
+            background-image: 
+                linear-gradient(rgba(3, 7, 18, 0.85), rgba(3, 7, 18, 0.85)), 
+                url('/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-main);
-            font-family: var(--font-mono);
-            padding: 20px; 
-            margin: 0;
-            display: flex;
-            justify-content: center;
+            margin: 0; padding: 20px;
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            box-sizing: border-box;
         }
+
         .panel {
-            width: 100%;
-            max-width: 500px; 
-            margin-top: 20px;
-            background: var(--panel-bg);
+            width: 100%; max-width: 480px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 30px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-radius: 12px; padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
         }
-        h2 { 
-            margin-top: 0; 
-            font-weight: normal;
-            font-size: 20px;
-            border-bottom: 1px solid var(--border-color); 
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            text-align: center;
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hidden { display: none !important; }
+
+        h2 { margin: 0 0 24px 0; font-size: 20px; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; text-align: center;}
+        
+        .section-label { 
+            font-size: 12px; font-weight: 600; color: var(--text-muted); 
+            text-transform: uppercase; letter-spacing: 0.5px; 
+            margin: 24px 0 8px 0; display: block;
         }
-        p { 
-            font-size: 14px; 
-            color: var(--text-muted); 
-            margin: 20px 0 10px 0; 
-        }
+
         input, textarea, select, button {
-            background: var(--bg-color); 
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-family: inherit; 
-            font-size: 14px;
-            padding: 12px; 
-            width: 100%; 
-            box-sizing: border-box; 
+            width: 100%; padding: 12px;
+            background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
+            color: var(--text-main); border-radius: 6px;
+            font-family: var(--font-mono); font-size: 13px; outline: none; box-sizing: border-box;
         }
-        button { 
-            background: var(--btn-bg); 
-            cursor: pointer; 
-            margin-top: 10px;
-            transition: background 0.2s;
+        
+        input:focus, textarea:focus, select:focus { 
+            border-color: var(--border-focus); 
+            box-shadow: 0 0 0 2px rgba(90, 171, 242, 0.2);
         }
-        button:hover { 
-            background: var(--btn-hover); 
+        textarea { height: 100px; resize: none; }
+
+        button {
+            background-color: var(--text-main); color: var(--bg-base);
+            font-family: var(--font-sans); font-weight: bold; cursor: pointer; border: none; margin-top: 12px;
+            transition: opacity 0.2s, transform 0.1s;
         }
-        textarea { 
-            height: 120px; 
-            resize: vertical; 
+        button:hover { opacity: 0.9; }
+        button:active { transform: scale(0.98); }
+        button.action-btn { background-color: var(--border-focus); color: #000; }
+
+        .flex-row { 
+            display: flex; 
+            gap: 12px; 
+            flex-direction: row;
         }
-        .hidden { display: none; }
-        .row { display: flex; gap: 10px; margin-top: 10px; }
-        .row select { flex: 1; margin-top: 0; }
-        .row button { flex: 1; margin-top: 0; }
+        .flex-row select { flex: 1; margin-top: 0; }
+        .flex-row button { flex: 1; margin-top: 0; }
+
+        @media (max-width: 480px) {
+            .flex-row {
+                flex-direction: column;
+                gap: 0px;
+            }
+            .flex-row button {
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div id="loginPanel" class="panel">
-        <h2>Admin Login</h2>
+        <h2>Admin Authentication</h2>
         <input type="password" id="passInput" placeholder="Enter password">
-        <button onclick="login()">Login</button>
+        <button onclick="login()">Authenticate</button>
     </div>
 
     <div id="dashboardPanel" class="panel hidden">
-        <h2>SEDSE Dashboard</h2>
+        <h2>Dashboard Panel</h2>
         
-        <p>Update Obfuscated Script</p>
-        <textarea id="scriptInput" placeholder="Paste your obfuscated lua script here..."></textarea>
-        <button onclick="saveScript()">Save Script</button>
+        <span class="section-label">Source Code Deployment</span>
+        <textarea id="scriptInput" placeholder="-- Paste obfuscated Lua script here"></textarea>
+        <button class="action-btn" onclick="saveScript()">Deploy Script</button>
 
-        <p>Generate Custom Key</p>
-        <div class="row">
+        <span class="section-label">Key Management</span>
+        <div class="flex-row">
             <select id="keyDuration">
-                <option value="12h">12 Hours</option>
-                <option value="24h">24 Hours</option>
-                <option value="lifetime">Lifetime</option>
+                <option value="12h">12 Hours Duration</option>
+                <option value="24h">24 Hours Duration</option>
+                <option value="lifetime">Lifetime Duration</option>
             </select>
-            <button onclick="generateKey()">Generate</button>
+            <button class="action-btn" onclick="generateKey()">Generate Key</button>
         </div>
-        <input type="text" id="adminKeyOutput" readonly placeholder="Generated key will appear here">
+        <input style="margin-top: 12px;" type="text" id="adminKeyOutput" readonly placeholder="Output key will be printed here">
 
-        <p>Universal Loader</p>
+        <span class="section-label">Universal Loader Code</span>
         <textarea id="loaderOutput" readonly></textarea>
     </div>
 
@@ -113,10 +136,10 @@
         
         function login() {
             sessionPass = document.getElementById('passInput').value;
+            if(!sessionPass) return;
             document.getElementById('loginPanel').classList.add('hidden');
             document.getElementById('dashboardPanel').classList.remove('hidden');
             
-            // Set the loader code dynamically based on the current domain
             const loaderBox = document.getElementById('loaderOutput');
             loaderBox.value = `local key = "ENTER_KEY_HERE"\n(loadstring or load)(game:HttpGet("${window.location.origin}/v1/load?key=" .. game:GetService("HttpService"):UrlEncode(key) .. "&_cb=" .. tostring(os.clock()), true))()`;
         }
@@ -127,11 +150,8 @@
                 method: 'POST',
                 body: JSON.stringify({ action: "save_script", password: sessionPass, script: script })
             });
-            if(res.ok) {
-                alert("Script saved successfully.");
-            } else {
-                alert("Error: Incorrect password or network issue.");
-            }
+            if(res.ok) alert("Script successfully deployed.");
+            else alert("Authentication Error.");
         }
 
         async function generateKey() {
@@ -143,9 +163,7 @@
             if(res.ok) {
                 const data = await res.json();
                 document.getElementById('adminKeyOutput').value = data.key;
-            } else {
-                alert("Error: Incorrect password.");
-            }
+            } else alert("Authentication Error.");
         }
     </script>
 </body>
