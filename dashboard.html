@@ -3,66 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEDSE TERMINAL</title>
+    <title>SEDSE Dashboard</title>
     <style>
-        :root { --text: #00ff41; --bg: #050505; --dot: #1a1a1a; }
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --btn-bg: #2a2a2a;
+            --btn-hover: #3a3a3a;
+            --font-mono: 'Consolas', 'Courier New', Courier, monospace;
+        }
         body {
-            background-color: var(--bg);
-            background-image: radial-gradient(var(--dot) 2px, transparent 2px);
-            background-size: 24px 24px;
-            font-family: 'Courier New', Courier, monospace;
-            color: var(--text);
-            padding: 20px; text-align: center; margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            padding: 20px; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
         }
         .panel {
-            max-width: 500px; margin: 20px auto;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid var(--text);
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-            padding: 20px; text-align: left;
+            width: 100%;
+            max-width: 500px; 
+            margin-top: 20px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 30px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        h2 { text-align: center; text-transform: uppercase; border-bottom: 1px dashed var(--text); padding-bottom: 10px;}
+        h2 { 
+            margin-top: 0; 
+            font-weight: normal;
+            font-size: 20px;
+            border-bottom: 1px solid var(--border-color); 
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        p { 
+            font-size: 14px; 
+            color: var(--text-muted); 
+            margin: 20px 0 10px 0; 
+        }
         input, textarea, select, button {
-            background: #000; color: var(--text);
-            border: 1px solid var(--text);
-            font-family: inherit; font-size: 14px;
-            padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px;
+            background: var(--bg-color); 
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit; 
+            font-size: 14px;
+            padding: 12px; 
+            width: 100%; 
+            box-sizing: border-box; 
         }
-        button { font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        button:hover { background: var(--text); color: #000; }
-        textarea { height: 120px; resize: none; }
+        button { 
+            background: var(--btn-bg); 
+            cursor: pointer; 
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        button:hover { 
+            background: var(--btn-hover); 
+        }
+        textarea { 
+            height: 120px; 
+            resize: vertical; 
+        }
         .hidden { display: none; }
+        .row { display: flex; gap: 10px; margin-top: 10px; }
+        .row select { flex: 1; margin-top: 0; }
+        .row button { flex: 1; margin-top: 0; }
     </style>
 </head>
 <body>
 
     <div id="loginPanel" class="panel">
-        <h2>SYS_AUTH REQUIRED</h2>
-        <input type="password" id="passInput" placeholder="Enter Admin Password...">
-        <button onclick="login()">Access System</button>
+        <h2>Admin Login</h2>
+        <input type="password" id="passInput" placeholder="Enter password">
+        <button onclick="login()">Login</button>
     </div>
 
     <div id="dashboardPanel" class="panel hidden">
-        <h2>SEDSE SYSTEM CONTROL</h2>
+        <h2>SEDSE Dashboard</h2>
         
-        <p>> UPLOAD OBFUSCATED SCRIPT:</p>
-        <textarea id="scriptInput" placeholder="Paste your obfuscated lua here..."></textarea>
-        <button onclick="saveScript()">DEPLOY SCRIPT</button>
+        <p>Update Obfuscated Script</p>
+        <textarea id="scriptInput" placeholder="Paste your obfuscated lua script here..."></textarea>
+        <button onclick="saveScript()">Save Script</button>
 
-        <br><br><br>
-        <p>> GENERATE ADMIN KEY:</p>
-        <select id="keyDuration">
-            <option value="12h">12 Hours</option>
-            <option value="24h">24 Hours</option>
-            <option value="lifetime">Lifetime</option>
-        </select>
-        <button onclick="generateKey()">CREATE KEY</button>
-        <input type="text" id="adminKeyOutput" readonly placeholder="Awaiting generation...">
+        <p>Generate Custom Key</p>
+        <div class="row">
+            <select id="keyDuration">
+                <option value="12h">12 Hours</option>
+                <option value="24h">24 Hours</option>
+                <option value="lifetime">Lifetime</option>
+            </select>
+            <button onclick="generateKey()">Generate</button>
+        </div>
+        <input type="text" id="adminKeyOutput" readonly placeholder="Generated key will appear here">
 
-        <br><br><br>
-        <p>> UNIVERSAL LOADER:</p>
-        <textarea id="loaderOutput" readonly>local key = "ENTER_KEY_HERE"
-(loadstring or load)(game:HttpGet(window.location.origin + "/v1/load?key=" .. game:GetService("HttpService"):UrlEncode(key) .. "&_cb=" .. tostring(os.clock()), true))()</textarea>
+        <p>Universal Loader</p>
+        <textarea id="loaderOutput" readonly></textarea>
     </div>
 
     <script>
@@ -73,7 +116,7 @@
             document.getElementById('loginPanel').classList.add('hidden');
             document.getElementById('dashboardPanel').classList.remove('hidden');
             
-            // Fix loader origin dynamically
+            // Set the loader code dynamically based on the current domain
             const loaderBox = document.getElementById('loaderOutput');
             loaderBox.value = `local key = "ENTER_KEY_HERE"\n(loadstring or load)(game:HttpGet("${window.location.origin}/v1/load?key=" .. game:GetService("HttpService"):UrlEncode(key) .. "&_cb=" .. tostring(os.clock()), true))()`;
         }
@@ -84,8 +127,11 @@
                 method: 'POST',
                 body: JSON.stringify({ action: "save_script", password: sessionPass, script: script })
             });
-            if(res.ok) alert("Script Deployed Successfully!");
-            else alert("Error: Unauthorized or Network failure.");
+            if(res.ok) {
+                alert("Script saved successfully.");
+            } else {
+                alert("Error: Incorrect password or network issue.");
+            }
         }
 
         async function generateKey() {
@@ -97,8 +143,10 @@
             if(res.ok) {
                 const data = await res.json();
                 document.getElementById('adminKeyOutput').value = data.key;
-            } else alert("Error: Unauthorized!");
+            } else {
+                alert("Error: Incorrect password.");
+            }
         }
     </script>
 </body>
-</html> 
+</html>
