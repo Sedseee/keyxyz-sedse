@@ -1,45 +1,77 @@
 export async function onRequest(context) {
   const url = new URL(context.request.url);
-  
-  // Linkvertise automatically appends "?hash=..." to your target URL when redirecting
-  const hash = url.searchParams.get("hash");
-
-  if (!hash) {
-    return new Response("Bypass Detected: Missing secure verification hash. You must complete the linkvertise.", { status: 403 });
-  }
+  const hash = url.searchParams.get("hash"); // Linkvertise and Work.ink both use this
+  const provider = url.searchParams.get("provider"); // Can be "linkvertise", "workink", "lootlabs"
 
   const supabaseUrl = context.env.SUPABASE_URL;
   const supabaseKey = context.env.SUPABASE_KEY;
-  const linkvertiseToken = context.env.LINKVERTISE_TOKEN;
+  const headers = { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` };
 
-  // 1. Validate the hash with Linkvertise's official verification API
-  const validationUrl = `https://publisher.linkvertise.com/api/v1/anti_bypassing?token=${linkvertiseToken}&hash=${hash}`;
-  
-  try {
-    const linkvertiseRes = await fetch(validationUrl, { method: 'POST' });
-    const responseText = await linkvertiseRes.text();
+  let isVerified = false;
 
-    // Linkvertise returns "true" if the hash is valid, and "false" or an error if bypassed
-    if (!responseText.toUpperCase().includes("TRUE")) {
-      return new Response("Bypass Detected: Invalid or expired verification hash.", { status: 403 });
+  // --- 1. WORK.INK VERIFICATION ---
+  if (provider === "workink" && hash) {
+    // Work.ink Key System API validation. We add deleteToken=1 to auto-destroy it on check.
+    const workinkUrl = `https://work.ink/_api/v2/token/isValid/${hash}?deleteToken=1`;
+    try {
+      const res = await fetch(workinkUrl);
+      const data = await res.json();
+      if (data && data.valid === true) {
+        isVerified = true;
+      }
+    } catch (e) {
+      return new Response("Verification Error: Failed to reach Work.ink validation server.", { status: 500 });
     }
-  } catch (err) {
-    return new Response("Verification Error: Failed to reach the ad validation server.", { status: 500 });
+  }
+  
+  // --- 2. LINKVERTISE VERIFICATION ---
+  else if (provider === "linkvertise" && hash) {
+    const linkvertiseToken = context.env.LINKVERTISE_TOKEN;
+    const validationUrl = `https://publisher.linkvertise.com/api/v1/anti_bypassing?token=${linkvertiseToken}&hash=${hash}`;
+    try {
+      const linkvertiseRes = await fetch(validationUrl, { method: 'POST' });
+      const responseText = await linkvertiseRes.text();
+      if (responseText.toUpperCase().includes("TRUE")) {
+        isVerified = true;
+      }
+    } catch (err) {
+      return new Response("Verification Error: Failed to reach Linkvertise validation server.", { status: 500 });
+    }
+  }
+  
+  // --- 3. LOOTLABS VERIFICATION ---
+  else if (provider === "lootlabs") {
+    const userIP = context.request.headers.get("cf-connecting-ip") || "unknown-ip";
+    const ticket = "LOOT-" + userIP;
+
+    // Check if LootLabs successfully pinged our postback endpoint for this IP
+    const checkRes = await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${ticket}&is_active=eq.false`, { headers });
+    const checkData = await checkRes.json();
+
+    if (checkData && checkData.length > 0) {
+      isVerified = true;
+      
+      // Delete the temporary postback ticket so it cannot be reused
+      await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${ticket}`, {
+        method: 'DELETE',
+        headers: headers
+      });
+    }
   }
 
-  // 2. Hash is verified! Generate the actual key
+  // If validation fails
+  if (!isVerified) {
+    return new Response("Bypass Detected: Verification failed or expired. Please complete the tasks properly.", { status: 403 });
+  }
+
+  // --- 4. VERIFICATION SUCCESSFUL -> GENERATE REAL KEY ---
   const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase();
   const newKey = `SEDSE-${randomPart}`;
 
-  // 3. Save the real key to Supabase
+  // Save the real key to Supabase
   const dbResponse = await fetch(`${supabaseUrl}/rest/v1/keys`, {
     method: 'POST',
-    headers: {
-      'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
+    headers: { ...headers, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({
       key_value: newKey,
       is_active: true
@@ -50,7 +82,7 @@ export async function onRequest(context) {
     return new Response("Database Error: Key generated but could not be saved.", { status: 500 });
   }
 
-  // 4. Return success page to the user
+  // Return success HTML
   const html = `
   <!DOCTYPE html>
   <html lang="en">
@@ -74,4 +106,4 @@ export async function onRequest(context) {
   return new Response(html, {
     headers: { 'Content-Type': 'text/html' }
   });
-}
+    }
