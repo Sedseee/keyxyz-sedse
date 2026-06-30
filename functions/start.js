@@ -2,10 +2,11 @@ export async function onRequest(context) {
   const supabaseUrl = context.env.SUPABASE_URL;
   const supabaseKey = context.env.SUPABASE_KEY;
 
-  // 1. Generate a random temporary session ticket
-  const ticket = "PENDING-" + Math.random().toString(36).substring(2, 15);
+  // 1. Get the user's IP address (Cloudflare provides this automatically)
+  const userIP = context.request.headers.get("cf-connecting-ip") || "unknown-ip";
+  const ticket = "IP-" + userIP;
 
-  // 2. Save ticket to your existing Supabase table (is_active = false)
+  // 2. Save the IP ticket to Supabase (is_active = false)
   await fetch(`${supabaseUrl}/rest/v1/keys`, {
     method: 'POST',
     headers: {
@@ -20,14 +21,13 @@ export async function onRequest(context) {
     })
   });
 
-  // 3. Set a cookie on their browser and redirect to your Linkvertise
+  // 3. Redirect to Linkvertise (No cookies needed!)
   const linkvertiseUrl = "https://link-hub.net/6931596/TGdANQjZ05vc";
-  
+
   return new Response(null, {
     status: 302,
     headers: {
-      'Location': linkvertiseUrl,
-      'Set-Cookie': `session=${ticket}; HttpOnly; Path=/; Max-Age=600; Secure`
+      'Location': linkvertiseUrl
     }
   });
 }
