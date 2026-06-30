@@ -1,28 +1,23 @@
 export async function onRequest(context) {
-  // 1. Check for the hidden Cookie ticket
-  const cookieHeader = context.request.headers.get("Cookie") || "";
-  const match = cookieHeader.match(/session=(PENDING-[a-zA-Z0-9]+)/);
+  // 1. Get the user's IP address
+  const userIP = context.request.headers.get("cf-connecting-ip") || "unknown-ip";
+  const ticket = "IP-" + userIP;
   
-  if (!match) {
-    return new Response("Bypass Detected: No session found. You must start at /start.", { status: 403 });
-  }
-  
-  const ticket = match[1];
   const supabaseUrl = context.env.SUPABASE_URL;
   const supabaseKey = context.env.SUPABASE_KEY;
   const headers = { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` };
 
-  // 2. Verify the ticket in Supabase
+  // 2. Verify the IP ticket in Supabase
   const checkRes = await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${ticket}&is_active=eq.false&select=created_at`, { headers });
   const checkData = await checkRes.json();
 
-  if (checkData.length === 0) {
-    return new Response("Bypass Detected: Invalid or expired session.", { status: 403 });
+  if (!checkData || checkData.length === 0) {
+    return new Response("Bypass Detected: No session found for your IP. You must start at /start.", { status: 403 });
   }
 
-  // 3. Anti-Bypass Tool Time Check (Linkvertise takes at least 15 secs to complete)
-  const createdAt = new Date(checkData[0].created_at).getTime();
-  const timeDiff = (Date.now() - createdAt) / 1000; // in seconds
+  // 3. Anti-Bypass Tool Time Check (Grab the most recent click)
+  const createdAt = new Date(checkData[checkData.length - 1].created_at).getTime();
+  const timeDiff = (Date.now() - createdAt) / 1000;
 
   if (timeDiff < 12) {
     return new Response(`Bypass Detected: You completed the link too fast! (${Math.round(timeDiff)}s). Real users take longer.`, { status: 403 });
@@ -39,13 +34,13 @@ export async function onRequest(context) {
     body: JSON.stringify({ key_value: newKey, is_active: true })
   });
 
-  // 5. Delete the temporary ticket so they can't reuse it
+  // 5. Delete the IP ticket so they can't reuse it
   await fetch(`${supabaseUrl}/rest/v1/keys?key_value=eq.${ticket}`, {
     method: 'DELETE',
     headers: headers
   });
 
-  // 6. Return HTML and destroy the cookie
+  // 6. Return HTML
   const html = `
   <!DOCTYPE html>
   <html lang="en">
@@ -67,9 +62,6 @@ export async function onRequest(context) {
   `;
 
   return new Response(html, {
-    headers: {
-      'Content-Type': 'text/html',
-      'Set-Cookie': 'session=; HttpOnly; Path=/; Max-Age=0; Secure' // Destroys cookie
-    }
+    headers: { 'Content-Type': 'text/html' }
   });
 }
