@@ -5,72 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEDSE Key System</title>
     <style>
-        :root { --text: #00ff41; --bg: #050505; --dot: #1a1a1a; }
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --btn-bg: #2a2a2a;
+            --btn-hover: #3a3a3a;
+            --font-mono: 'Consolas', 'Courier New', Courier, monospace;
+        }
         body { 
-            font-family: 'Courier New', Courier, monospace; 
-            background-color: var(--bg);
-            background-image: radial-gradient(var(--dot) 2px, transparent 2px);
-            background-size: 24px 24px;
-            color: var(--text); 
-            padding: 20px; text-align: center; margin: 0;
+            font-family: var(--font-mono); 
+            background-color: var(--bg-color);
+            color: var(--text-main); 
+            padding: 20px; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
         }
         .container {
-            max-width: 450px; margin: 30px auto;
-            background: rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 450px; 
+            margin-top: 20px;
+            background: var(--panel-bg);
             padding: 30px;
-            border: 2px solid var(--text);
-            box-shadow: 0 0 15px rgba(0,255,65,0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        h2 { border-bottom: 1px dashed var(--text); padding-bottom: 10px; margin-top: 0; }
-        p { font-size: 14px; margin-bottom: 25px; }
-        
+        h2 { 
+            margin-top: 0; 
+            font-weight: normal; 
+            font-size: 20px;
+            border-bottom: 1px solid var(--border-color); 
+            padding-bottom: 15px; 
+            text-align: center;
+        }
+        p { 
+            font-size: 14px; 
+            color: var(--text-muted); 
+            margin-bottom: 15px; 
+            text-align: center;
+        }
         .btn {
-            display: block; width: 100%; padding: 12px; margin: 10px 0;
-            border: 1px solid var(--text); background: #000; color: var(--text);
-            font-family: inherit; font-size: 16px; font-weight: bold;
-            cursor: pointer; text-decoration: none; box-sizing: border-box;
-            text-transform: uppercase; transition: 0.2s;
+            display: block; 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0;
+            background: var(--btn-bg); 
+            color: var(--text-main);
+            border: 1px solid var(--border-color); 
+            border-radius: 4px;
+            font-family: inherit; 
+            font-size: 14px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            box-sizing: border-box;
+            text-align: center;
+            transition: background 0.2s;
         }
-        .btn:hover { background: var(--text); color: #000; }
-        
-        .divider { margin: 30px 0; border-bottom: 1px dashed var(--text); }
-        
-        input {
-            width: 100%; padding: 12px; margin-top: 10px;
-            background: #000; border: 1px solid var(--text); color: var(--text);
-            box-sizing: border-box; text-align: center; font-size: 16px; font-family: inherit;
+        .btn:hover { 
+            background: var(--btn-hover); 
+        }
+        .divider { 
+            margin: 30px 0; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        input, textarea {
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 10px;
+            background: var(--bg-color); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main);
+            border-radius: 4px;
+            box-sizing: border-box; 
+            font-family: inherit;
         }
         textarea {
-            width: 100%; height: 100px; margin-top: 15px;
-            background: #000; color: var(--text); border: 1px solid var(--text);
-            padding: 10px; box-sizing: border-box; font-family: inherit; font-size: 12px; resize: none;
+            height: 100px; 
+            resize: none; 
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>SEDSE TERMINAL</h2>
-        <p>> CHOOSE VERIFICATION NODE:</p>
+        <h2>SEDSE Key System</h2>
+        <p>Select a provider to generate your key</p>
         
-        <a href="https://link-hub.net/6931596/TGdANQjZ05vc" class="btn" target="_blank">[ LINKVERTISE ]</a>
-        <a href="https://work.ink/2BN1/sedse-jjs-script-key" class="btn" target="_blank">[ WORK.INK ]</a>
-        <a href="https://loot-link.com/s?iAE1MNAB" class="btn" target="_blank">[ LOOTLABS ]</a>
+        <a href="https://link-hub.net/6931596/TGdANQjZ05vc" class="btn" target="_blank">Linkvertise</a>
+        <a href="https://work.ink/2BN1/sedse-jjs-script-key" class="btn" target="_blank">Work.ink</a>
+        <a href="https://loot-link.com/s?iAE1MNAB" class="btn" target="_blank">LootLabs</a>
         
         <div class="divider"></div>
         
-        <h2>> INITIATE LOADER</h2>
-        <p>> INPUT AUTH KEY BELOW:</p>
+        <h2>Loader Generator</h2>
+        <p>Enter your key to generate the loader</p>
         
-        <input type="text" id="keyInput" placeholder="SEDSE-XXXX">
-        <button class="btn" onclick="generateLoader()">> COMPILE</button>
+        <input type="text" id="keyInput" placeholder="Enter key (e.g., SEDSE-XXXX)">
+        <button class="btn" onclick="generateLoader()">Generate Code</button>
         
-        <textarea id="output" readonly placeholder="Output stream..."></textarea>
+        <textarea id="output" readonly placeholder="Your loadstring will appear here..."></textarea>
     </div>
 
     <script>
         function generateLoader() {
             const key = document.getElementById('keyInput').value.trim();
-            if(!key) { alert("ERROR: KEY REQUIRED"); return; }
+            if(!key) { alert("Please enter a key."); return; }
             const domain = window.location.origin;
             const loaderCode = `local key = "${key}"\n(loadstring or load)(game:HttpGet("${domain}/v1/load?key=" .. game:GetService("HttpService"):UrlEncode(key) .. "&_cb=" .. tostring(os.clock()), true))()`;
             document.getElementById('output').value = loaderCode;
