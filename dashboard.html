@@ -4,31 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEDSE System Admin</title>
+    <!-- Fonts & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
         :root {
             --bg-base: #030712;
-            --bg-surface: rgba(11, 15, 25, 0.85); /* Glass panel */
+            --bg-surface: #0b0f19;
             --border-color: rgba(255, 255, 255, 0.08);
             --border-focus: #5aabf2; /* Sky Blue Accent */
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
             
-            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         body {
             font-family: var(--font-sans);
             background-color: var(--bg-base);
-            /* Dark transparent overlay over your uploaded anime beach sky background */
-            background-image: 
-                linear-gradient(rgba(3, 7, 18, 0.85), rgba(3, 7, 18, 0.85)), 
-                url('/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            /* Clean Developer Dot Grid Background */
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
             color: var(--text-main);
             margin: 0; padding: 20px;
             min-height: 100vh;
@@ -39,11 +36,9 @@
         .panel {
             width: 100%; max-width: 480px;
             background: var(--bg-surface);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 12px; padding: 32px 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
             box-sizing: border-box;
             animation: fadeIn 0.3s ease;
         }
@@ -52,21 +47,38 @@
 
         .hidden { display: none !important; }
 
-        h2 { margin: 0 0 24px 0; font-size: 20px; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; text-align: center;}
-        
-        .section-label { 
-            font-size: 12px; font-weight: 600; color: var(--text-muted); 
-            text-transform: uppercase; letter-spacing: 0.5px; 
-            margin: 24px 0 8px 0; display: block;
+        .flex-center {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
-        input, textarea, select, button {
+        h2 { 
+            margin: 0 0 24px 0; font-size: 20px; font-weight: 600; 
+            border-bottom: 1px solid var(--border-color); padding-bottom: 16px; 
+        }
+        
+        .section-label { 
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 600; color: var(--text-muted); 
+            text-transform: uppercase; letter-spacing: 0.5px; 
+            margin: 24px 0 8px 0; 
+        }
+
+        .input-wrapper { position: relative; }
+        .input-wrapper .lucide {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); width: 18px; height: 18px;
+        }
+
+        input, textarea, select {
             width: 100%; padding: 12px;
             background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
             color: var(--text-main); border-radius: 6px;
             font-family: var(--font-mono); font-size: 13px; outline: none; box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         
+        input.with-icon { padding-left: 40px; }
+
         input:focus, textarea:focus, select:focus { 
             border-color: var(--border-focus); 
             box-shadow: 0 0 0 2px rgba(90, 171, 242, 0.2);
@@ -74,64 +86,72 @@
         textarea { height: 100px; resize: none; }
 
         button {
-            background-color: var(--text-main); color: var(--bg-base);
-            font-family: var(--font-sans); font-weight: bold; cursor: pointer; border: none; margin-top: 12px;
+            width: 100%; background-color: var(--text-main); color: var(--bg-base);
+            font-family: var(--font-sans); font-weight: bold; cursor: pointer; border: none; 
+            border-radius: 6px; padding: 12px; margin-top: 12px;
             transition: opacity 0.2s, transform 0.1s;
         }
         button:hover { opacity: 0.9; }
         button:active { transform: scale(0.98); }
         button.action-btn { background-color: var(--border-focus); color: #000; }
 
-        .flex-row { 
-            display: flex; 
-            gap: 12px; 
-            flex-direction: row;
-        }
+        .flex-row { display: flex; gap: 12px; flex-direction: row; }
         .flex-row select { flex: 1; margin-top: 0; }
         .flex-row button { flex: 1; margin-top: 0; }
 
         @media (max-width: 480px) {
-            .flex-row {
-                flex-direction: column;
-                gap: 0px;
-            }
-            .flex-row button {
-                margin-top: 10px;
-            }
+            .flex-row { flex-direction: column; gap: 0px; }
+            .flex-row button { margin-top: 10px; }
         }
     </style>
 </head>
 <body>
 
     <div id="loginPanel" class="panel">
-        <h2>Admin Authentication</h2>
-        <input type="password" id="passInput" placeholder="Enter password">
-        <button onclick="login()">Authenticate</button>
+        <h2 class="flex-center"><i data-lucide="lock"></i> Admin Authentication</h2>
+        <div class="input-wrapper">
+            <i data-lucide="key"></i>
+            <input type="password" id="passInput" class="with-icon" placeholder="Enter password">
+        </div>
+        <button class="flex-center" onclick="login()">
+            Authenticate <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+        </button>
     </div>
 
     <div id="dashboardPanel" class="panel hidden">
-        <h2>Dashboard Panel</h2>
+        <h2 class="flex-center"><i data-lucide="layout-dashboard"></i> Dashboard Panel</h2>
         
-        <span class="section-label">Source Code Deployment</span>
+        <span class="section-label"><i data-lucide="file-code-2" style="width:16px;"></i> Source Code Deployment</span>
         <textarea id="scriptInput" placeholder="-- Paste obfuscated Lua script here"></textarea>
-        <button class="action-btn" onclick="saveScript()">Deploy Script</button>
+        <button class="action-btn flex-center" onclick="saveScript()">
+            <i data-lucide="upload-cloud" style="width: 18px;"></i> Deploy Script
+        </button>
 
-        <span class="section-label">Key Management</span>
+        <span class="section-label"><i data-lucide="key-round" style="width:16px;"></i> Key Management</span>
         <div class="flex-row">
             <select id="keyDuration">
                 <option value="12h">12 Hours Duration</option>
                 <option value="24h">24 Hours Duration</option>
                 <option value="lifetime">Lifetime Duration</option>
             </select>
-            <button class="action-btn" onclick="generateKey()">Generate Key</button>
+            <button class="action-btn flex-center" onclick="generateKey()">
+                <i data-lucide="plus-circle" style="width: 18px;"></i> Generate
+            </button>
         </div>
-        <input style="margin-top: 12px;" type="text" id="adminKeyOutput" readonly placeholder="Output key will be printed here">
+        
+        <div class="input-wrapper" style="margin-top: 12px;">
+            <i data-lucide="clipboard-copy"></i>
+            <input type="text" id="adminKeyOutput" class="with-icon" readonly placeholder="Output key will be printed here">
+        </div>
 
-        <span class="section-label">Universal Loader Code</span>
+        <span class="section-label"><i data-lucide="terminal-square" style="width:16px;"></i> Universal Loader Code</span>
         <textarea id="loaderOutput" readonly></textarea>
     </div>
 
     <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
         let sessionPass = "";
         
         function login() {
