@@ -4,35 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEDSE Key System</title>
+    <!-- Fonts & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
         :root {
             --bg-base: #030712;
-            --bg-surface: rgba(11, 15, 25, 0.85); /* Glass panel */
+            --bg-surface: #0b0f19;
             --border-color: rgba(255, 255, 255, 0.08);
-            --border-focus: #5aabf2; /* Your Sky Blue Accent */
+            --border-focus: #5aabf2; /* Sky Blue Accent */
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
             
             --btn-lv: #ea580c;
             --btn-wi: #8b5cf6;
-            --btn-ll: #3b82f6;
             
-            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         body {
             font-family: var(--font-sans);
             background-color: var(--bg-base);
-            /* Dark transparent overlay over your uploaded anime beach sky background */
-            background-image: 
-                linear-gradient(rgba(3, 7, 18, 0.85), rgba(3, 7, 18, 0.85)), 
-                url('/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            /* Clean Developer Dot Grid Background */
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
             color: var(--text-main);
             margin: 0; padding: 20px;
             min-height: 100vh;
@@ -43,18 +39,20 @@
         .container {
             width: 100%; max-width: 440px;
             background: var(--bg-surface);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 32px 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
             box-sizing: border-box;
+        }
+
+        .flex-center {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
         h2 {
             margin: 0 0 6px 0; font-size: 20px; font-weight: 600;
-            color: var(--text-main); letter-spacing: -0.5px; text-align: center;
+            color: var(--text-main); letter-spacing: -0.5px;
         }
         
         p { font-size: 14px; color: var(--text-muted); margin: 0 0 24px 0; text-align: center; line-height: 1.5; }
@@ -65,9 +63,9 @@
         }
 
         .btn {
-            display: block; width: 100%; padding: 12px; margin-bottom: 12px;
+            width: 100%; padding: 12px; margin-bottom: 12px;
             border-radius: 6px; font-family: inherit; font-size: 14px; 
-            font-weight: 600; cursor: pointer; text-decoration: none; text-align: center;
+            font-weight: 600; cursor: pointer; text-decoration: none; 
             border: 1px solid transparent; color: #ffffff;
             box-sizing: border-box; 
             transition: opacity 0.2s, transform 0.1s;
@@ -77,46 +75,68 @@
         
         .btn-lv { background-color: var(--btn-lv); }
         .btn-wi { background-color: var(--btn-wi); }
-        .btn-ll { background-color: var(--btn-ll); }
         .btn-brand { background-color: var(--border-focus); margin-top: 12px; color: #000; }
 
-        input, textarea {
-            width: 100%; padding: 12px;
+        .input-wrapper { position: relative; }
+        .input-wrapper .lucide {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); width: 18px; height: 18px;
+        }
+
+        input {
+            width: 100%; padding: 12px 12px 12px 40px;
             background: rgba(0, 0, 0, 0.3); 
             border: 1px solid var(--border-color);
             color: var(--text-main); border-radius: 6px;
             font-family: var(--font-mono); font-size: 13px; outline: none;
             box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s;
         }
-        input:focus, textarea:focus { 
+        input:focus { 
             border-color: var(--border-focus); 
             box-shadow: 0 0 0 2px rgba(90, 171, 242, 0.2);
         }
         
-        textarea { height: 95px; resize: none; margin-top: 16px; color: #10b981; }
+        textarea { 
+            width: 100%; padding: 12px;
+            background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
+            border-radius: 6px; font-family: var(--font-mono); font-size: 13px; outline: none;
+            height: 95px; resize: none; margin-top: 16px; color: #10b981; box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>SEDSE Key System</h2>
+        <h2 class="flex-center"><i data-lucide="shield-check"></i> SEDSE Key System</h2>
         <p>Complete any option below to generate your script key.</p>
         
-        <a href="https://link-hub.net/6931596/TGdANQjZ05vc" class="btn btn-lv" target="_blank">Linkvertise</a>
-        <a href="https://work.ink/2BN1/sedse-jjs-script-key" class="btn btn-wi" target="_blank">Work.ink</a>
-        <a href="https://loot-link.com/s?iAE1MNAB&puid=sedse" class="btn btn-ll" target="_blank">LootLabs</a>
+        <a href="https://link-hub.net/6931596/TGdANQjZ05vc" class="btn btn-lv flex-center" target="_blank">
+            <i data-lucide="external-link" style="width: 18px; height: 18px;"></i> Linkvertise
+        </a>
+        <a href="https://work.ink/2BN1/sedse-jjs-script-key" class="btn btn-wi flex-center" target="_blank">
+            <i data-lucide="link-2" style="width: 18px; height: 18px;"></i> Work.ink
+        </a>
         
         <div class="divider"></div>
         
-        <h2>Loader Compiler</h2>
+        <h2 class="flex-center"><i data-lucide="terminal"></i> Loader Compiler</h2>
         <p>Enter your key below to build your loader code.</p>
         
-        <input type="text" id="keyInput" placeholder="SEDSE-XXXX">
-        <button class="btn btn-brand" onclick="generateLoader()">Generate Loader</button>
+        <div class="input-wrapper">
+            <i data-lucide="key-round"></i>
+            <input type="text" id="keyInput" placeholder="SEDSE-XXXX">
+        </div>
+        
+        <button class="btn btn-brand flex-center" onclick="generateLoader()">
+            <i data-lucide="cpu" style="width: 18px; height: 18px;"></i> Generate Loader
+        </button>
         
         <textarea id="output" readonly placeholder="-- Your loadstring will be generated here"></textarea>
     </div>
 
     <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
         function generateLoader() {
             const key = document.getElementById('keyInput').value.trim();
             if(!key) return; 
